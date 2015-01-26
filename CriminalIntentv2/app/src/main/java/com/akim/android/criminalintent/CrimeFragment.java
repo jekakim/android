@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import java.util.Date;
 import java.util.UUID;
@@ -29,17 +31,20 @@ import java.util.UUID;
  * Created by Alex on 9/29/2014.
  */
 public class CrimeFragment extends Fragment {
+    private static final String TAG = "CrimeFragment";
     public static final String EXTRA_CRIME_ID =
             "come.bignerdranch.android.criminalintent.crime_id";
 
     private static final String DIALOG_DATE = "date";
     private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_PHOTO = 1;
 
     private Crime mCrime;
     private EditText mTitleField;
     private Button mDateButton;
     private CheckBox mSolvedCheckBox;
     private ImageButton mPhotoButton;
+    private ImageView mPhotoView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -111,9 +116,11 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getActivity(), CrimeCameraActivity.class);
-                startActivity(i);
+                startActivityForResult(i, REQUEST_PHOTO);
             }
         });
+
+        mPhotoView = (ImageView)v.findViewById(R.id.crime_imageView);
 
         // If camera is not available, disable camera functionality
         PackageManager pm = getActivity().getPackageManager();
@@ -146,6 +153,14 @@ public class CrimeFragment extends Fragment {
                     .getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
             updateDate();
+        } else if (requestCode == REQUEST_PHOTO) {
+            // Create a new Photo object and attach it to the crime
+            String filename = data.getStringExtra(CrimeCameraFragment.EXTRA_PHOTO_FILENAME);
+            if (filename != null) {
+                Photo p = new Photo(filename);
+                mCrime.setPhoto(p);
+                Log.i(TAG, "Crime: " + mCrime.getTitle() + " has a photo");
+            }
         }
     }
 

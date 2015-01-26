@@ -2,7 +2,9 @@ package com.akim.android.criminalintent;
 
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +27,9 @@ import java.util.UUID;
  */
 public class CrimeCameraFragment extends Fragment {
     private static final String TAG = "CrimeCameraFragment";
+
+    public static final String EXTRA_PHOTO_FILENAME =
+            "com.bignerdranch.android.criminalintent.photo_filename";
 
     private Camera mCamera;
     private SurfaceView mSurfaceView;
@@ -60,8 +65,13 @@ public class CrimeCameraFragment extends Fragment {
                 }
             }
 
+            // Set the photo filename on the result intent
             if (success) {
-                Log.i(TAG, "JPEG saved at " + filename);
+                Intent i = new Intent();
+                i.putExtra(EXTRA_PHOTO_FILENAME, filename);
+                getActivity().setResult(Activity.RESULT_OK, i);
+            } else {
+                getActivity().setResult(Activity.RESULT_CANCELED);
             }
             getActivity().finish();
         }
